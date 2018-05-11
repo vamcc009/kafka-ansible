@@ -1,0 +1,16 @@
+kafka:
+  download_link: http://www-us.apache.org/dist/kafka
+  version: 0.10.2.1
+  package: kafka_2.10-0.10.2.1
+  port: 9093
+  log_dirs: /opt/kafka/logs
+
+symbolic_link: /opt
+install_path: /mnt
+
+zookeeper:
+  datadir: /zookeeper
+  port: 2181
+  tick_time: 2000
+  init_limit: 10
+  sync_limit: 5

@@ -1,0 +1,46 @@
+---
+
+
+- name: download kafka tar
+  get_url: url={{ kafka.download_link }}/{{ kafka.version }}/{{ kafka.package }}.tgz dest={{ install_path }} mode=0644 validate_certs=no
+
+- name: unarchive kafka package
+  unarchive: src={{ install_path }}/{{ kafka.package }}.tgz dest={{ install_path }} remote_src=yes
+
+- name: delete the tar package
+  file: path={{ install_path }}/{{ kafka.package }}.tgz state=absent
+
+- name: Create Symbolic link for Kafka
+  file: src={{ install_path }}/{{ kafka.package }} path={{ symbolic_link }}/kafka state=link
+
+- name: create zookeeper directory
+  command: mkdir /zookeeper force=yes
+
+- name: set up zookeeper ID
+  template: src=myid.j2 dest={{ zookeeper.datadir }}/myid
+
+- name: Set Zookeepr properties
+  template: src=zookeeper.properties.j2 dest={{ symbolic_link }}/kafka/config/zookeeper.properties force=yes
+
+- name: Start zookeeper
+  command: bash {{ symbolic_link }}/kafka/bin/zookeeper-server-start.sh -daemon {{ symbolic_link }}/kafka/config/zookeeper.properties
+
+- name: Wait for port 2181 to be available
+  wait_for: host="{{ groups['kafka_servers'][0] }}" port={{ zookeeper.port }} delay=15
+
+
+- name: Set up Kafka Configiuration
+  template: src=server.properties.j2 dest={{ symbolic_link }}/kafka/config/server.properties force=yes
+
+- name: Start Kafka
+  shell: nohup {{ symbolic_link }}/kafka/bin/kafka-server-start.sh {{ symbolic_link }}/kafka/config/server.properties &
+  register: output
+
+- name: Debug.stdout Output.
+  debug: msg="{{ output.stdout }}"
+
+- name: Debug.stderr Output.
+  debug: msg="{{ output.stderr }}"
+
+- name: Wait for Port 9093 to be avialable.
+  wait_for: host="{{ groups['kafka_servers'][0] }}" port=9093 delay=10 timeout=20

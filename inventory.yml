@@ -1,0 +1,4 @@
+[kafka_servers]
+server1-ip kafka_broker_id=1  zk_id=1 kfk_server=server1-ip
+server2-ip kafka_broker_id=2  zk_id=2 kfk_server=server2-ip
+server3-ip kafka_broker_id=3  zk_id=3 kfk_server=server3-ip

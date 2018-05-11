@@ -1,0 +1,4 @@
+broker.id={{ kafka_broker_id }}
+listeners=PLAINTEXT://:{{ kafka.port }}
+log.dirs={{ kafka.log_dirs }}
+zookeeper.connect={{ groups["kafka_servers"] | join(":{0},".format(zookeeper.port )) }}:{{ zookeeper.port }}
